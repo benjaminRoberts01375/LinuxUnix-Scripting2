@@ -107,5 +107,5 @@ do
 
 	passwd --expire $UNAME
 
-	echo 'Your password is: $PASSWD' | ssmpt $LINE
+	(echo 'Your password is: $PASSWD' | ssmtp $LINE)
 done < $2
