@@ -27,7 +27,7 @@ checkForRoot()
 #Brief: Checks usage of script to ensure proper syntax and provided file
 checkConditions()
 {
-	checkForRoot
+	checkForRoot #Reusing some code from scripting1 project
 
 	if [ ! $1 ] #No flag provided
 	then
@@ -99,13 +99,18 @@ do
 	UNAME="$(getUserName $LINE)"
 	PASSWD="$(makePasswd)"
 
-	if [ "(cat /etc/passwd | grep $UNAME | wc -l)" == 0 ] #Checking to see if user already exists
+	if [ "$(cat /etc/group | grep 'CSI281' | wc -l)" == 0 ] #If the group CSI281 doesn't exist, make it
 	then
-		sudo useradd -m -s /bin/bash $UNAME
-		echo "$UNAME:$PASSWD" | chpasswd
+        	groupadd "CSI281"
 	fi
 
-	passwd --expire $UNAME
+	if [ "$(cat /etc/passwd | grep $UNAME | wc -l)" == 0 ] #Checking to see if user already exists
+	then
+		sudo useradd -m -s /bin/bash $UNAME
+	fi
 
-	(echo 'Your password is: $PASSWD' | ssmtp $LINE)
+	echo "$UNAME:$PASSWD" | chpasswd
+        (echo Your password is: $PASSWD | ssmtp $LINE)
+	chage --lastday 0 $UNAME
+	usermod -a -G CSI281 $UNAME
 done < $2
